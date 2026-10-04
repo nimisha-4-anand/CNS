@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>Campus Nav - Locations</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+
+        .location-image {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .location-image-placeholder {
+            width: 100%;
+            height: 180px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-size: 50px;
+
+            background: #f1f5f3;
+        }
+
+        .location-card-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+
+        .location-card-top h3 {
+            margin: 0;
+        }
+
+        .favorite-btn {
+            border: none;
+            background: transparent;
+            font-size: 25px;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+
+        .favorite-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .view-map {
+            margin-top: 15px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+<div class="app">
+
+
+    <!-- SIDEBAR -->
+
+    <aside class="sidebar">
+
+        <div class="brand">
+
+            <img
+                src="images/logo.png"
+                alt="Campus Nav Logo"
+            >
+
+            <div>
+
+                <h2>CAMPUS NAV</h2>
+
+                <p>
+                    SMART NAVIGATION SYSTEM
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <nav>
+
+            <a href="dashboard.html">
+                🏠
+                <span>Home</span>
+            </a>
+
+
+            <a href="locations.html" class="active">
+                📍
+                <span>Locations</span>
+            </a>
+
+
+            <a href="map.html">
+                🗺️
+                <span>Map</span>
+            </a>
+
+
+            <a href="favourites.html">
+                ♡
+                <span>Favorites</span>
+            </a>
+
+
+            <a href="profile.html">
+                👤
+                <span>Profile</span>
+            </a>
+
+
+            <a href="settings.html">
+                ⚙️
+                <span>Settings</span>
+            </a>
+
+        </nav>
+
+
+        <div class="sidebar-bottom">
+
+            <h3>Your Campus</h3>
+            <h3>Your Journey</h3>
+
+        </div>
+
+    </aside>
+
+    <main class="main">
+
+        <header>
+
+            <div></div>
+
+
+            <div class="user-area">
+
+                <span class="notification">
+                    🔔
+                </span>
+
+
+                <div class="user">
+
+                    <div class="user-circle">
+                        👤
+                    </div>
+
+
+                    <span id="userName"></span>
+
+
+                    <span>
+                        ⌄
+                    </span>
+
+                </div>
+
+
+                <button
+                    class="logout-btn"
+                    onclick="logout()">
+
+                    LOGOUT
+
+                </button>
+
+            </div>
+
+        </header>
+
+        <section class="quick-section">
+
+
+            <div class="location-page-header">
+
+
+                <div class="section-title">
+
+                    <div class="grid-icon">
+                        📍
+                    </div>
+
+
+                    <div>
+
+                        <h2 id="categoryTitle">
+                            Campus Locations
+                        </h2>
+
+
+                        <p id="categoryDescription">
+                            Explore locations on your campus
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <button
+                    type="button"
+                    class="back-dashboard"
+                    onclick="window.location.href='dashboard.html'">
+
+                    ← Back to Dashboard
+
+                </button>
+
+            </div>
+
+            <div
+                id="locationsContainer"
+                class="cards">
+
+                <p>
+                    Loading locations...
+                </p>
+
+            </div>
+
+
+        </section>
+
+    </main>
+
+</div>
+
+
+<script src="script.js"></script>
+
+
+<script>
+
+    showUser();
+
+    const locationImages = {
+
+        "Basic Electrical & Electronics Lab":
+            "images/bee.jfif",
+
+        "Drawing Hall":
+            "images/drawing hall.jfif",
+
+        "Physics lab":
+            "images/physics.jfif",
+
+        "Chemistry Lab":
+            "images/chemistry.jfif",
+
+        "Library":
+            "images/library.jfif"
+
+    };
+
+    async function loadLocations() {
+
+
+        const container =
+            document.getElementById(
+                "locationsContainer"
+            );
+
+
+        const title =
+            document.getElementById(
+                "categoryTitle"
+            );
+
+
+        const description =
+            document.getElementById(
+                "categoryDescription"
+            );
+
+        title.innerHTML =
+            "Campus Locations";
+
+
+        description.innerHTML =
+            "Explore all locations on your campus.";
+
+
+
+        try {
+
+            const response =
+                await fetch(
+                    "http://localhost:8081/api/locations"
+                );
+
+            if (!response.ok) {
+
+                container.innerHTML = `
+
+                    <div class="location-result">
+
+                        <h3>
+                            Unable to load locations
+                        </h3>
+
+                        <p>
+                            The server returned an error.
+                        </p>
+
+                    </div>
+
+                `;
+
+                return;
+
+            }
+
+            const locations =
+                await response.json();
+
+            if (
+                !locations ||
+                locations.length === 0
+            ) {
+
+                container.innerHTML = `
+
+                    <div class="location-result">
+
+                        <h3>
+                            No locations available
+                        </h3>
+
+                        <p>
+                            No campus locations have been
+                            added yet.
+                        </p>
+
+                    </div>
+
+                `;
+
+                return;
+
+            }
+
+            container.innerHTML = "";
+
+            locations.forEach(location => {
+
+
+                const card =
+                    document.createElement("div");
+
+
+                card.className =
+                    "card green";
+
+
+                card.style.cursor =
+                    "pointer";
+
+                card.onclick =
+                    function () {
+
+                        navigateToLocation(
+                            location.id
+                        );
+
+                    };
+
+                const image =
+                    locationImages[location.name];
+
+                let imageHTML = "";
+
+
+                if (image) {
+
+                    imageHTML = `
+
+                        <img
+                            src="${image}"
+                            alt="${location.name}"
+                            class="location-image"
+                            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                        >
+
+                        <div
+                            class="location-image-placeholder"
+                            style="display:none;">
+
+                            📍
+
+                        </div>
+
+                    `;
+
+                } else {
+
+                    imageHTML = `
+
+                        <div
+                            class="location-image-placeholder">
+
+                            📍
+
+                        </div>
+
+                    `;
+
+                }
+
+                card.innerHTML = `
+
+                    ${imageHTML}
+
+
+                    <div class="card-icon">
+                        📍
+                    </div>
+
+
+                    <div class="location-card-top">
+
+                        <h3>
+                            ${location.name || "Unnamed Location"}
+                        </h3>
+
+
+                        <button
+                            type="button"
+                            class="favorite-btn"
+                            data-location-id="${location.id}"
+                            onclick="toggleFavorite(event, ${location.id})">
+
+                            ☆
+
+                        </button>
+
+                    </div>
+
+
+                    <p>
+
+                        <strong>
+                            Type:
+                        </strong>
+
+                        ${location.type || "N/A"}
+
+                    </p>
+
+
+                    <p>
+
+                        <strong>
+                            Building:
+                        </strong>
+
+                        ${location.building || "N/A"}
+
+                    </p>
+
+
+                    <p>
+
+                        <strong>
+                            Floor:
+                        </strong>
+
+                        ${location.floor || "N/A"}
+
+                    </p>
+
+
+                    <p>
+
+                        ${location.description ||
+                        "No description available"}
+
+                    </p>
+
+
+                    <div class="view-map">
+
+                        🗺️ View on Map →
+
+                    </div>
+
+                `;
+
+                container.appendChild(card);
+
+            });
+
+            updateFavoriteButtons();
+
+        }
+
+
+        catch (error) {
+
+
+            console.error(
+                "Location loading error:",
+                error
+            );
+
+
+            container.innerHTML = `
+
+                <div class="location-result">
+
+                    <h3>
+                        Cannot connect to Spring Boot server
+                    </h3>
+
+                    <p>
+                        Please make sure the backend is
+                        running on port 8081.
+                    </p>
+
+                </div>
+
+            `;
+
+        }
+
+    }
+    loadLocations();
+
+
+</script>
+
+
+</body>
+
+</html>
+

@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+    <title>Campus Nav - Dashboard</title>
+
+    <link rel="stylesheet" href="style.css">
+
+</head>
+
+
+<body>
+
+<div class="app">
+
+    <aside class="sidebar">
+
+
+        <div class="brand">
+
+            <img
+                src="images/logo.png"
+                alt="Campus Nav Logo"
+            >
+
+            <div>
+
+                <h2>CAMPUS NAV</h2>
+
+                <p>
+                    SMART NAVIGATION SYSTEM
+                </p>
+
+            </div>
+
+        </div>
+
+        <nav>
+
+            <a href="#" class="active">
+
+                🏠
+
+                <span>
+                    Home
+                </span>
+
+            </a>
+
+
+            <a href="locations.html">📍 <span>Locations</span></a>
+
+
+            <a href="map.html">🗺️ <span>Map</span></a>
+
+
+            <a href="favourites.html">♡<span>Favorites</span></a>
+
+
+            <a href="profile.html">👤<span>Profile</span></a>
+
+
+            <a href="setting.html">⚙️<span>Settings</span></a>
+        </nav>
+
+
+        <div class="sidebar-bottom">
+
+            <h3>Your Campus</h3>
+
+            <h3>Your Journey</h3>
+
+        </div>
+
+    </aside>
+
+    <main class="main">
+
+        <header>
+
+            <div></div>
+
+
+            <div class="user-area">
+
+                <span class="notification">
+                    🔔
+                </span>
+
+
+                <div class="user">
+
+                    <div class="user-circle">
+                        👤
+                    </div>
+
+
+                    <span id="userName">
+                        
+                    </span>
+
+
+                    <span>
+                        ⌄
+                    </span>
+
+                </div>
+
+
+                <button
+                    class="logout-btn"
+                    onclick="logout()">
+
+                    LOGOUT
+
+                </button>
+
+            </div>
+
+        </header>
+
+        <section class="hero">
+
+            <div class="hero-content">
+
+                <h1>
+
+                    Welcome,
+
+                    <span id="welcomeUser">
+                        
+                    </span>!
+
+                </h1>
+
+
+                <p>
+                    Find your way around campus with ease.
+                </p>
+
+
+                <div class="search">
+
+    <span>
+        🔍
+    </span>
+
+    <input
+        type="text"
+        id="location"
+        placeholder="Search campus location..."
+    >
+
+    <button
+    type="button"
+    onclick="searchLocation()">
+    Search →
+</button>
+
+</div>
+            </div>
+
+        </section>
+
+        <section class="quick-section">
+
+
+            <div class="section-title">
+
+                <div class="grid-icon">
+                    ▦
+                </div>
+
+
+                <div>
+
+                    <h2>
+                        Quick Access
+                    </h2>
+
+                    <p>
+                        Explore important locations and services on campus
+                    </p>
+
+                </div>
+
+            </div>
+
+
+
+           <div
+    class="card blue"
+    onclick="window.location.href='locations.html?category=Administration'">
+
+    <div class="card-icon">
+        🏢
+    </div>
+
+    <h3>
+        Administration
+    </h3>
+
+    <p>
+        Offices and administrative services
+    </p>
+
+    <span class="arrow">
+        →
+    </span>
+
+</div>
+
+
+<div
+    class="card purple"
+    onclick="window.location.href='locations.html?category=Faculty'">
+
+    <div class="card-icon">
+        👨‍🏫
+    </div>
+
+    <h3>
+        Faculty
+    </h3>
+
+    <p>
+        Faculty rooms and HOD cabins
+    </p>
+
+    <span class="arrow">
+        →
+    </span>
+
+</div>
+
+
+<div
+    class="card orange"
+    onclick="window.location.href='locations.html?category=Classrooms'">
+
+    <div class="card-icon">
+        🏫
+    </div>
+
+    <h3>
+        Classrooms
+    </h3>
+
+    <p>
+        Find classrooms and departments
+    </p>
+
+    <span class="arrow">
+        →
+    </span>
+
+</div>
+
+
+<div
+    
+    class="card green"
+    onclick="window.location.href='locations.html?category=Laboratories'">
+
+    <div class="card-icon">
+        🧪
+    </div>
+
+    <h3>
+        Laboratories
+    </h3>
+
+    <p>
+        Explore campus laboratories
+    </p>
+
+    <span class="arrow">
+        →
+    </span>
+
+</div>
+
+
+<div
+    class="card cyan"
+    onclick="window.location.href='locations.html?category=Library'">
+
+    <div class="card-icon">
+        📚
+    </div>
+
+    <h3>
+        Library
+    </h3>
+
+    <p>
+        Find the campus library
+    </p>
+
+    <span class="arrow">
+        →
+    </span>
+
+</div>
+
+
+<div
+    class="card pink"
+    onclick="window.location.href='locations.html?category=Halls'">
+
+    <div class="card-icon">
+        🏛️
+    </div>
+
+    <h3>
+        Halls
+    </h3>
+
+    <p>
+        Drawing halls and event spaces
+    </p>
+
+    <span class="arrow">
+        →
+    </span>
+
+</div>
+
+
+<div
+    class="card cyan"
+    onclick="window.location.href='locations.html?category=Facilities'">
+
+    <div class="card-icon">
+        ⚙️
+    </div>
+
+    <h3>
+        Facilities
+    </h3>
+
+    <p>
+        Canteen and campus facilities
+    </p>
+
+    <span class="arrow">
+        →
+    </span>
+
+</div>
+
+
+<div
+    class="card purple"
+    onclick="window.location.href='locations.html?category=Entrances%20%26%20Gates'">
+
+    <div class="card-icon">
+        🚪
+    </div>
+
+    <h3>
+        Entrances & Gates
+    </h3>
+
+    <p>
+        Find campus entrances and gates
+    </p>
+
+    <span class="arrow">
+        →
+    </span>
+
+</div>
+
+
+<div
+    class="card blue"
+    onclick="window.location.href='locations.html?category=Sports%20%26%20Recreation'">
+
+    <div class="card-icon">
+        ⚽
+    </div>
+
+    <h3>
+        Sports & Recreation
+    </h3>
+
+    <p>
+        Sports and recreational facilities
+    </p>
+
+    <span class="arrow">
+        →
+    </span>
+
+</div>
+
+
+
+            <div id="result"></div>
+
+
+
+            <!-- FEATURES -->
+
+            <div class="features">
+
+
+                <div>
+
+                    <span>
+                        📍
+                    </span>
+
+                    <div>
+
+                        <b>
+                            Explore
+                        </b>
+
+                        <p>
+                            Find your destination easily
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+
+                <div>
+
+                    <span>
+                        🛡️
+                    </span>
+
+                    <div>
+
+                        <b>
+                            Safe & Secure
+                        </b>
+
+                        <p>
+                            Campus navigation made simple
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+
+                <div>
+
+                    <span>
+                        🧭
+                    </span>
+
+                    <div>
+
+                        <b>
+                            Smart Navigation
+                        </b>
+
+                        <p>
+                            Save time, explore more
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+
+                <div>
+
+                    <span>
+                        🎓
+                    </span>
+
+                    <div>
+
+                        <b>
+                            Your Campus, Our Priority
+                        </b>
+
+                        <p>
+                            Better Navigation | Better Experience
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+
+<script src="script.js"></script>
+
+<script>
+    showUser();
+</script>
+
+</body>
+</html>

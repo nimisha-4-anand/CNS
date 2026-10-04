@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+    <title>Campus Nav - Favorites</title>
+
+    <link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- SIDEBAR -->
+
+    <aside class="sidebar">
+
+        <div class="brand">
+
+            <img
+                src="images/logo.png"
+                alt="Campus Nav Logo"
+            >
+
+            <div>
+
+                <h2>CAMPUS NAV</h2>
+
+                <p>
+                    SMART NAVIGATION SYSTEM
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <nav>
+
+            <a href="dashboard.html">
+                🏠
+                <span>Home</span>
+            </a>
+
+            <a href="locations.html">
+                📍
+                <span>Locations</span>
+            </a>
+
+            <a href="map.html">
+                🗺️
+                <span>Map</span>
+            </a>
+
+            <a href="favorites.html" class="active">
+                ♡
+                <span>Favorites</span>
+            </a>
+
+            <a href="#">
+                👤
+                <span>Profile</span>
+            </a>
+
+            <a href="#">
+                ⚙️
+                <span>Settings</span>
+            </a>
+
+        </nav>
+
+
+        <div class="sidebar-bottom">
+
+            <h3>Your Campus</h3>
+            <h3>Your Journey</h3>
+
+        </div>
+
+    </aside>
+
+    <main class="main">
+
+        <header>
+
+            <div></div>
+
+            <div class="user-area">
+
+                <span class="notification">
+                    🔔
+                </span>
+
+                <div class="user">
+
+                    <div class="user-circle">
+                        👤
+                    </div>
+
+                    <span id="userName"></span>
+
+                    <span>
+                        ⌄
+                    </span>
+
+                </div>
+
+                <button
+                    class="logout-btn"
+                    onclick="logout()">
+
+                    LOGOUT
+
+                </button>
+
+            </div>
+
+        </header>
+
+        <section class="quick-section">
+
+            <div class="location-page-header">
+
+                <div class="section-title">
+
+                    <div class="grid-icon">
+                        ⭐
+                    </div>
+
+                    <div>
+
+                        <h2>
+                            My Favorites
+                        </h2>
+
+                        <p>
+                            Your saved campus locations
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <button
+                    type="button"
+                    class="back-dashboard"
+                    onclick="window.location.href='dashboard.html'">
+
+                    ← Back to Dashboard
+
+                </button>
+
+            </div>
+
+            <div
+                id="favoritesContainer"
+                class="cards">
+
+                <p>
+                    Loading favorites...
+                </p>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+
+<script src="script.js"></script>
+
+
+<script>
+
+    showUser();
+
+
+    async function loadFavorites() {
+
+        const container =
+            document.getElementById(
+                "favoritesContainer"
+            );
+
+
+        const favorites =
+            JSON.parse(
+                localStorage.getItem(
+                    "favoriteLocations"
+                )
+            ) || [];
+
+
+        /*
+         * No favorites
+         */
+
+        if (favorites.length === 0) {
+
+            container.innerHTML = `
+
+                <div class="location-result">
+
+                    <h3>
+                        No Favorites Yet
+                    </h3>
+
+                    <p>
+                        You haven't added any
+                        campus locations to your
+                        favorites.
+                    </p>
+
+                    <button
+                        type="button"
+                        class="back-dashboard"
+                        onclick="window.location.href='locations.html'">
+
+                        📍 Explore Locations
+
+                    </button>
+
+                </div>
+
+            `;
+
+            return;
+        }
+
+
+        try {
+
+            const response =
+                await fetch(
+                    "http://localhost:8081/api/locations"
+                );
+
+
+            if (!response.ok) {
+
+                container.innerHTML =
+                    "<p>Unable to load locations.</p>";
+
+                return;
+
+            }
+
+
+            const locations =
+                await response.json();
+
+
+            const favoriteLocations =
+                locations.filter(location =>
+                    favorites.includes(
+                        Number(location.id)
+                    )
+                );
+
+
+            if (favoriteLocations.length === 0) {
+
+                container.innerHTML = `
+
+                    <div class="location-result">
+
+                        <h3>
+                            No Favorites Found
+                        </h3>
+
+                        <p>
+                            Your saved locations
+                            are no longer available.
+                        </p>
+
+                    </div>
+
+                `;
+
+                return;
+
+            }
+
+
+            container.innerHTML = "";
+
+
+            /*
+             * Create favorite cards
+             */
+
+            favoriteLocations.forEach(location => {
+
+                const card =
+                    document.createElement("div");
+
+
+                card.className =
+                    "card green";
+
+
+                card.style.cursor =
+                    "pointer";
+
+
+                card.onclick = function () {
+
+                    navigateToLocation(
+                        location.id
+                    );
+
+                };
+
+
+                card.innerHTML = `
+
+                    <div class="card-icon">
+                        📍
+                    </div>
+
+
+                    <div class="location-card-top">
+
+                        <h3>
+                            ${location.name}
+                        </h3>
+
+
+                        <button
+                            type="button"
+                            class="favorite-btn favorite-active"
+                            onclick="removeFavorite(
+                                event,
+                                ${location.id}
+                            )">
+
+                            ★
+
+                        </button>
+
+                    </div>
+
+
+                    <p>
+                        <strong>Type:</strong>
+                        ${location.type || "N/A"}
+                    </p>
+
+
+                    <p>
+                        <strong>Category:</strong>
+                        ${location.category || "N/A"}
+                    </p>
+
+
+                    <p>
+                        <strong>Section:</strong>
+                        ${location.subCategory || "N/A"}
+                    </p>
+
+
+                    <p>
+                        ${location.description ||
+                        "No description available"}
+                    </p>
+
+
+                    <div class="view-map">
+
+                        🗺️ View on Map →
+
+                    </div>
+
+                `;
+
+
+                container.appendChild(card);
+
+            });
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "Favorites loading error:",
+                error
+            );
+
+
+            container.innerHTML =
+                "<p>Cannot connect to Spring Boot server.</p>";
+
+        }
+
+    }
+
+
+    function removeFavorite(
+        event,
+        locationId
+    ) {
+
+        event.stopPropagation();
+
+
+        let favorites =
+            JSON.parse(
+                localStorage.getItem(
+                    "favoriteLocations"
+                )
+            ) || [];
+
+
+        favorites =
+            favorites.filter(
+                id => id !== locationId
+            );
+
+
+        localStorage.setItem(
+            "favoriteLocations",
+            JSON.stringify(
+                favorites
+            )
+        );
+
+
+        loadFavorites();
+
+    }
+
+
+    loadFavorites();
+
+</script>
+
+
+</body>
+</html>

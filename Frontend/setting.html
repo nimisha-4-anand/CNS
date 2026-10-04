@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Campus Nav - Settings</title>
+
+<link rel="stylesheet" href="style.css">
+
+<style>
+
+    .settings-section {
+        padding: 20px 0;
+    }
+
+    .settings-container {
+        max-width: 850px;
+        margin: 0 auto;
+    }
+
+    .settings-card {
+        background: white;
+        border-radius: 18px;
+        padding: 25px;
+        margin-bottom: 20px;
+        box-shadow: 0 8px 25px rgba(16, 43, 82, 0.10);
+        border: 1px solid #e8eef5;
+    }
+
+    .settings-card h3 {
+        margin: 0 0 6px;
+        color: #102b52;
+    }
+
+    .settings-card > p {
+        margin: 0 0 20px;
+        color: #718096;
+        font-size: 14px;
+    }
+
+    .setting-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 20px;
+        padding: 18px 0;
+        border-bottom: 1px solid #edf2f7;
+    }
+
+    .setting-row:last-child {
+        border-bottom: none;
+    }
+
+    .setting-info {
+        flex: 1;
+    }
+
+    .setting-info strong {
+        display: block;
+        color: #102b52;
+        margin-bottom: 5px;
+    }
+
+    .setting-info span {
+        color: #718096;
+        font-size: 13px;
+    }
+
+    .switch {
+        position: relative;
+        width: 52px;
+        height: 28px;
+        flex-shrink: 0;
+    }
+
+    .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .slider {
+        position: absolute;
+        inset: 0;
+        background: #cbd5e1;
+        border-radius: 30px;
+        cursor: pointer;
+        transition: 0.25s;
+    }
+
+    .slider:before {
+        content: "";
+        position: absolute;
+        width: 22px;
+        height: 22px;
+        left: 3px;
+        top: 3px;
+        background: white;
+        border-radius: 50%;
+        transition: 0.25s;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+
+    .switch input:checked + .slider {
+        background: #1872eb;
+    }
+
+    .switch input:checked + .slider:before {
+        transform: translateX(24px);
+    }
+
+    /* BUTTONS */
+
+    .settings-actions {
+        display: flex;
+        gap: 15px;
+        margin-top: 10px;
+    }
+
+    .settings-btn {
+        border: none;
+        padding: 13px 22px;
+        border-radius: 10px;
+        font-weight: bold;
+        cursor: pointer;
+        font-size: 14px;
+    }
+
+    .dashboard-btn {
+        background: #1872eb;
+        color: white;
+    }
+
+    .dashboard-btn:hover {
+        background: #0c5bc6;
+    }
+
+    .reset-btn {
+        background: #fee2e2;
+        color: #dc2626;
+    }
+
+    .reset-btn:hover {
+        background: #fecaca;
+    }
+
+    .saved-message {
+        color: #16a34a;
+        font-size: 14px;
+        font-weight: bold;
+        margin-top: 15px;
+        display: none;
+    }
+
+    @media (max-width: 650px) {
+
+        .setting-row {
+            align-items: flex-start;
+        }
+
+        .settings-actions {
+            flex-direction: column;
+        }
+
+    }
+
+</style>
+
+</head>
+
+<body>
+
+<div class="app">
+
+<aside class="sidebar">
+
+    <div class="brand">
+
+        <img
+            src="images/logo.png"
+            alt="Campus Nav Logo"
+        >
+
+        <div>
+
+            <h2>CAMPUS NAV</h2>
+
+            <p>
+                SMART NAVIGATION SYSTEM
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <nav>
+
+        <a href="dashboard.html">
+            🏠
+            <span>Home</span>
+        </a>
+
+        <a href="locations.html">
+            📍
+            <span>Locations</span>
+        </a>
+
+        <a href="map.html">
+            🗺️
+            <span>Map</span>
+        </a>
+
+        <a href="favorites.html">
+            ♡
+            <span>Favorites</span>
+        </a>
+
+        <a href="profile.html">
+            👤
+            <span>Profile</span>
+        </a>
+
+        <a href="settings.html" class="active">
+            ⚙️
+            <span>Settings</span>
+        </a>
+
+    </nav>
+
+
+    <div class="sidebar-bottom">
+
+        <h3>Your Campus</h3>
+        <h3>Your Journey</h3>
+
+    </div>
+
+</aside>
+
+<main class="main">
+
+    <header>
+
+        <div></div>
+
+        <div class="user-area">
+
+            <span class="notification">
+                🔔
+            </span>
+
+            <div class="user">
+
+                <div class="user-circle">
+                    👤
+                </div>
+
+                <span id="userName"></span>
+
+                <span>
+                    ⌄
+                </span>
+
+            </div>
+
+            <button
+                class="logout-btn"
+                onclick="logout()">
+
+                LOGOUT
+
+            </button>
+
+        </div>
+
+    </header>
+
+    <section class="settings-section">
+
+        <div class="settings-container">
+
+
+            <div class="settings-card">
+
+                <h3>
+                    ⚙️ Application Settings
+                </h3>
+
+                <p>
+                    Customize your Campus Navigation experience.
+                </p>
+
+                <div class="setting-row">
+
+                    <div class="setting-info">
+
+                        <strong>
+                            🌙 Dark Mode
+                        </strong>
+
+                        <span>
+                            Change the appearance of the application.
+                        </span>
+
+                    </div>
+
+
+                    <label class="switch">
+
+                        <input
+                            type="checkbox"
+                            id="darkModeToggle"
+                            onchange="toggleDarkMode()">
+
+                        <span class="slider"></span>
+
+                    </label>
+
+                </div>
+
+
+                <!-- NOTIFICATIONS -->
+
+                <div class="setting-row">
+
+                    <div class="setting-info">
+
+                        <strong>
+                            🔔 Notifications
+                        </strong>
+
+                        <span>
+                            Enable campus navigation notifications.
+                        </span>
+
+                    </div>
+
+
+                    <label class="switch">
+
+                        <input
+                            type="checkbox"
+                            id="notificationToggle"
+                            onchange="toggleNotifications()">
+
+                        <span class="slider"></span>
+
+                    </label>
+
+                </div>
+
+                <div class="setting-row">
+
+                    <div class="setting-info">
+
+                        <strong>
+                            🔐 Remember Login Email
+                        </strong>
+
+                        <span>
+                            Save your email for easier login.
+                        </span>
+
+                    </div>
+
+
+                    <label class="switch">
+
+                        <input
+                            type="checkbox"
+                            id="rememberToggle"
+                            onchange="toggleRememberEmail()">
+
+                        <span class="slider"></span>
+
+                    </label>
+
+                </div>
+
+
+                <div
+                    id="savedMessage"
+                    class="saved-message">
+
+                    ✓ Settings saved
+
+                </div>
+
+            </div>
+
+
+            <!-- ACCOUNT -->
+
+            <div class="settings-card">
+
+                <h3>
+                    👤 Account
+                </h3>
+
+                <p>
+                    Manage your current account.
+                </p>
+
+
+                <div class="setting-row">
+
+                    <div class="setting-info">
+
+                        <strong>
+                            Logged-in Account
+                        </strong>
+
+                        <span id="accountEmail">
+                            —
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <div class="settings-actions">
+
+                    <button
+                        type="button"
+                        class="settings-btn dashboard-btn"
+                        onclick="window.location.href='dashboard.html'">
+
+                        ← Back to Dashboard
+
+                    </button>
+
+
+                    <button
+                        type="button"
+                        class="settings-btn reset-btn"
+                        onclick="resetSettings()">
+
+                        Reset Settings
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+</main>
+```
+
+</div>
+
+<script src="script.js"></script>
+
+<script>
+
+    showUser();
+
+    function loadSettings() {
+
+        const darkMode =
+            localStorage.getItem("darkMode") === "true";
+
+        const notifications =
+            localStorage.getItem("notifications") !== "false";
+
+        const rememberEmail =
+            localStorage.getItem("rememberEmail") !== null;
+
+
+        document.getElementById("darkModeToggle").checked =
+            darkMode;
+
+        document.getElementById("notificationToggle").checked =
+            notifications;
+
+        document.getElementById("rememberToggle").checked =
+            rememberEmail;
+
+
+        if (darkMode) {
+            applyDarkMode();
+        }
+
+
+        const user =
+            JSON.parse(
+                localStorage.getItem("user")
+            );
+
+
+        if (user) {
+
+            document.getElementById("accountEmail")
+                .textContent =
+                user.email || "Not available";
+
+        }
+
+    }
+
+    function toggleDarkMode() {
+
+        const enabled =
+            document.getElementById(
+                "darkModeToggle"
+            ).checked;
+
+
+        localStorage.setItem(
+            "darkMode",
+            enabled
+        );
+
+
+        applyDarkMode();
+
+        showSavedMessage();
+
+    }
+
+
+    function applyDarkMode() {
+
+    const enabled =
+        localStorage.getItem("darkMode") === "true";
+
+    if (enabled) {
+        document.body.classList.add("dark-mode");
+    } else {
+        document.body.classList.remove("dark-mode");
+    }
+
+}
+    function toggleDarkMode() {
+
+    const enabled =
+        document.getElementById(
+            "darkModeToggle"
+        ).checked;
+
+    localStorage.setItem(
+        "darkMode",
+        enabled
+    );
+
+    applyDarkMode();
+
+    showSavedMessage();
+}
+
+    function toggleRememberEmail() {
+
+        const enabled =
+            document.getElementById(
+                "rememberToggle"
+            ).checked;
+
+
+        if (!enabled) {
+
+            localStorage.removeItem(
+                "rememberEmail"
+            );
+
+        } else {
+
+            const user =
+                JSON.parse(
+                    localStorage.getItem("user")
+                );
+
+
+            if (user && user.email) {
+
+                localStorage.setItem(
+                    "rememberEmail",
+                    user.email
+                );
+
+            }
+
+        }
+
+
+        showSavedMessage();
+
+    }
+
+    function showSavedMessage() {
+
+        const message =
+            document.getElementById(
+                "savedMessage"
+            );
+
+
+        message.style.display =
+            "block";
+
+
+        setTimeout(function () {
+
+            message.style.display =
+                "none";
+
+        }, 2000);
+
+    }
+
+    function resetSettings() {
+
+        const confirmReset =
+            confirm(
+                "Reset all application settings?"
+            );
+
+
+        if (!confirmReset) {
+            return;
+        }
+
+
+        localStorage.removeItem(
+            "darkMode"
+        );
+
+        localStorage.removeItem(
+            "notifications"
+        );
+
+        localStorage.removeItem(
+            "rememberEmail"
+        );
+
+
+        document.getElementById(
+            "darkModeToggle"
+        ).checked = false;
+
+
+        document.getElementById(
+            "notificationToggle"
+        ).checked = true;
+
+
+        document.getElementById(
+            "rememberToggle"
+        ).checked = false;
+
+
+        applyGlobalTheme();
+
+        showSavedMessage();
+
+    }
+
+
+    loadSettings();
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<title>Campus Nav - Profile</title>
+
+<link rel="stylesheet" href="style.css">
+
+<style>
+
+    .profile-section {
+        padding: 20px 0;
+    }
+
+    .profile-container {
+        max-width: 850px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 20px;
+        padding: 35px;
+        box-shadow: 0 8px 30px rgba(16, 43, 82, 0.10);
+    }
+
+    .profile-header {
+        text-align: center;
+        margin-bottom: 35px;
+    }
+
+    .profile-avatar {
+        width: 100px;
+        height: 100px;
+        margin: 0 auto 18px;
+        border-radius: 50%;
+        background: #eaf3ff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 45px;
+    }
+
+    .profile-header h2 {
+        margin: 0 0 8px;
+        color: #102b52;
+    }
+
+    .profile-header p {
+        margin: 0;
+        color: #718096;
+    }
+
+    .profile-info {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+
+    .profile-field {
+        background: #f8fafc;
+        border: 1px solid #e6edf5;
+        border-radius: 14px;
+        padding: 18px;
+    }
+
+    .profile-field.full {
+        grid-column: span 2;
+    }
+
+    .profile-field label {
+        display: block;
+        font-size: 13px;
+        color: #718096;
+        margin-bottom: 7px;
+        font-weight: bold;
+    }
+
+    .profile-field span {
+        font-size: 16px;
+        color: #102b52;
+        font-weight: 600;
+        word-break: break-word;
+    }
+
+    .profile-actions {
+        margin-top: 30px;
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+    }
+
+    .profile-btn {
+        border: none;
+        padding: 13px 22px;
+        border-radius: 10px;
+        font-weight: bold;
+        cursor: pointer;
+        font-size: 14px;
+    }
+
+    .dashboard-btn {
+        background: #1872eb;
+        color: white;
+    }
+
+    .dashboard-btn:hover {
+        background: #0c5bc6;
+    }
+
+    .logout-profile-btn {
+        background: #fee2e2;
+        color: #dc2626;
+    }
+
+    .logout-profile-btn:hover {
+        background: #fecaca;
+    }
+
+    @media (max-width: 700px) {
+
+        .profile-info {
+            grid-template-columns: 1fr;
+        }
+
+        .profile-field.full {
+            grid-column: span 1;
+        }
+
+        .profile-container {
+            padding: 25px;
+        }
+
+        .profile-actions {
+            flex-direction: column;
+        }
+
+    }
+
+</style>
+```
+
+</head>
+
+<body>
+
+<div class="app">
+
+<aside class="sidebar">
+
+    <div class="brand">
+
+        <img
+            src="images/logo.png"
+            alt="Campus Nav Logo"
+        >
+
+        <div>
+
+            <h2>CAMPUS NAV</h2>
+
+            <p>
+                SMART NAVIGATION SYSTEM
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <nav>
+
+        <a href="dashboard.html">
+            🏠
+            <span>Home</span>
+        </a>
+
+        <a href="locations.html">
+            📍
+            <span>Locations</span>
+        </a>
+
+        <a href="map.html">
+            🗺️
+            <span>Map</span>
+        </a>
+
+        <a href="favorites.html">
+            ♡
+            <span>Favorites</span>
+        </a>
+
+        <a href="profile.html" class="active">
+            👤
+            <span>Profile</span>
+        </a>
+
+        <a href="#">
+            ⚙️
+            <span>Settings</span>
+        </a>
+
+    </nav>
+
+
+    <div class="sidebar-bottom">
+
+        <h3>Your Campus</h3>
+        <h3>Your Journey</h3>
+
+    </div>
+
+</aside>
+
+<main class="main">
+
+    <header>
+
+        <div></div>
+
+        <div class="user-area">
+
+            <span class="notification">
+                🔔
+            </span>
+
+            <div class="user">
+
+                <div class="user-circle">
+                    👤
+                </div>
+
+                <span id="userName"></span>
+
+                <span>
+                    ⌄
+                </span>
+
+            </div>
+
+            <button
+                class="logout-btn"
+                onclick="logout()">
+
+                LOGOUT
+
+            </button>
+
+        </div>
+
+    </header>
+
+    <section class="profile-section">
+
+        <div class="profile-container">
+
+            <div class="profile-header">
+
+                <div class="profile-avatar">
+                    👤
+                </div>
+
+                <h2 id="profileName">
+                    Loading...
+                </h2>
+
+                <p>
+                    Campus Navigation User
+                </p>
+
+            </div>
+
+
+            <div class="profile-info">
+
+                <div class="profile-field">
+
+                    <label>
+                        FULL NAME
+                    </label>
+
+                    <span id="fullName">
+                        —
+                    </span>
+
+                </div>
+
+
+                <div class="profile-field">
+
+                    <label>
+                        STUDENT ID / ROLL NO.
+                    </label>
+
+                    <span id="studentId">
+                        —
+                    </span>
+
+                </div>
+
+
+                <div class="profile-field full">
+
+                    <label>
+                        EMAIL ADDRESS
+                    </label>
+
+                    <span id="email">
+                        —
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <div class="profile-actions">
+
+                <button
+                    type="button"
+                    class="profile-btn dashboard-btn"
+                    onclick="window.location.href='dashboard.html'">
+
+                    ← Back to Dashboard
+
+                </button>
+
+
+                <button
+                    type="button"
+                    class="profile-btn logout-profile-btn"
+                    onclick="logout()">
+
+                    Logout
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </section>
+
+</main>
+```
+
+</div>
+
+<script src="script.js"></script>
+
+<script>
+
+    showUser();
+
+
+    function loadProfile() {
+
+        const user =
+            JSON.parse(
+                localStorage.getItem("user")
+            );
+
+
+        if (!user) {
+
+            window.location.href =
+                "login.html";
+
+            return;
+
+        }
+
+
+        document.getElementById("profileName")
+            .textContent =
+            user.name || "User";
+
+
+        document.getElementById("fullName")
+            .textContent =
+            user.name || "Not available";
+
+
+        document.getElementById("studentId")
+            .textContent =
+            user.studentId || "Not available";
+
+
+        document.getElementById("email")
+            .textContent =
+            user.email || "Not available";
+
+    }
+
+
+    loadProfile();
+
+</script>
+
+</body>
+</html>

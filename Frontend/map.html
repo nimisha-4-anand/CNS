@@ -1,0 +1,1159 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>Campus Nav - Navigation</title>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    >
+
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+
+        html,
+        body {
+
+            margin: 0;
+            padding: 0;
+
+            width: 100%;
+            height: 100%;
+
+            font-family: Arial, sans-serif;
+
+            overflow: hidden;
+
+        }
+
+        #map {
+
+            position: absolute;
+
+            top: 0;
+            left: 0;
+
+            width: 100%;
+            height: 100vh;
+
+            z-index: 1;
+
+        }
+
+        .map-header {
+
+            position: absolute;
+
+            top: 15px;
+            left: 15px;
+            right: 15px;
+
+            height: 55px;
+
+            background: white;
+
+            border-radius: 12px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            padding: 0 18px;
+
+            box-shadow:
+                0 3px 15px rgba(0,0,0,.20);
+
+            z-index: 1000;
+
+        }
+
+
+        .map-header h1 {
+
+            margin: 0;
+
+            font-size: 20px;
+
+            color: #092b52;
+
+        }
+
+
+        .back-btn {
+
+            border: none;
+
+            background: #092b52;
+
+            color: white;
+
+            padding: 9px 16px;
+
+            border-radius: 8px;
+
+            font-weight: bold;
+
+            cursor: pointer;
+
+        }
+
+
+        .back-btn:hover {
+
+            background: #0d4178;
+
+        }
+        .navigation-panel {
+
+            position: absolute;
+
+            top: 85px;
+            left: 15px;
+
+            width: 330px;
+
+            background: white;
+
+            border-radius: 14px;
+
+            padding: 18px;
+
+            box-shadow:
+                0 4px 20px rgba(0,0,0,.22);
+
+            z-index: 1000;
+
+        }
+
+
+        .panel-title {
+
+            font-size: 17px;
+
+            font-weight: bold;
+
+            color: #092b52;
+
+            margin-bottom: 15px;
+
+        }
+
+
+        .location-field {
+
+            margin-bottom: 13px;
+
+        }
+
+
+        .location-field label {
+
+            display: block;
+
+            font-size: 13px;
+
+            font-weight: bold;
+
+            color: #555;
+
+            margin-bottom: 6px;
+
+        }
+
+
+        .location-field select {
+
+            width: 100%;
+
+            padding: 11px;
+
+            border: 1px solid #ccd6e0;
+
+            border-radius: 8px;
+
+            background: white;
+
+            font-size: 14px;
+
+            cursor: pointer;
+
+            outline: none;
+
+        }
+
+
+        .location-field select:focus {
+
+            border-color: #0d4178;
+
+        }
+
+
+        .route-btn {
+
+            width: 100%;
+
+            padding: 12px;
+
+            border: none;
+
+            border-radius: 8px;
+
+            background: #0d4178;
+
+            color: white;
+
+            font-weight: bold;
+
+            cursor: pointer;
+
+            font-size: 14px;
+
+        }
+
+
+        .route-btn:hover {
+
+            background: #092b52;
+
+        }
+
+        #route-message {
+
+            margin-top: 14px;
+
+            padding: 12px;
+
+            border-radius: 8px;
+
+            background: #eef5ff;
+
+            color: #092b52;
+
+            font-size: 13px;
+
+            line-height: 1.5;
+
+            display: none;
+
+        }
+
+        .map-legend {
+
+            position: absolute;
+
+            bottom: 20px;
+            left: 20px;
+
+            background: white;
+
+            padding: 12px 15px;
+
+            border-radius: 10px;
+
+            box-shadow:
+                0 3px 15px rgba(0,0,0,.20);
+
+            z-index: 1000;
+
+            font-size: 13px;
+
+        }
+
+
+        .legend-row {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 8px;
+
+            margin: 4px 0;
+
+        }
+
+
+        .legend-dot {
+
+            width: 12px;
+            height: 12px;
+
+            border-radius: 50%;
+
+        }
+
+
+        .start-dot {
+
+            background: #1976d2;
+
+        }
+
+
+        .destination-dot {
+
+            background: #d32f2f;
+
+        }
+
+        @media (max-width: 700px) {
+
+            .map-header {
+
+                left: 10px;
+                right: 10px;
+                top: 10px;
+
+            }
+
+
+            .map-header h1 {
+
+                font-size: 16px;
+
+            }
+
+
+            .back-btn {
+
+                padding: 8px 10px;
+
+                font-size: 12px;
+
+            }
+
+
+            .navigation-panel {
+
+                top: 75px;
+                left: 10px;
+                right: 10px;
+
+                width: auto;
+
+            }
+
+
+            .map-legend {
+
+                bottom: 10px;
+                left: 10px;
+
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+<div id="map"></div>
+
+<div class="map-header">
+
+    <h1>
+        🧭 Campus Navigation
+    </h1>
+
+
+    <button
+        class="back-btn"
+        onclick="goBack()">
+
+        ← Dashboard
+
+    </button>
+
+</div>
+
+<div class="navigation-panel">
+
+
+    <div class="panel-title">
+
+        📍 Plan Your Route
+
+    </div>
+
+    <div class="location-field">
+
+        <label for="startLocation">
+
+            Starting Location
+
+        </label>
+
+
+        <select id="startLocation">
+
+            <option value="">
+
+                Select starting location
+
+            </option>
+
+        </select>
+
+    </div>
+
+    <div class="location-field">
+
+        <label for="destinationLocation">
+
+            Destination
+
+        </label>
+
+
+        <select id="destinationLocation">
+
+            <option value="">
+
+                Select destination
+
+            </option>
+
+        </select>
+
+    </div>
+
+    <button
+        class="route-btn"
+        onclick="findRoute()">
+
+        🧭 FIND ROUTE
+
+    </button>
+
+    <div id="route-message"></div>
+
+</div>
+
+<div class="map-legend">
+
+    <div class="legend-row">
+
+        <span class="legend-dot start-dot"></span>
+
+        Start
+
+    </div>
+
+
+    <div class="legend-row">
+
+        <span class="legend-dot destination-dot"></span>
+
+        Destination
+
+    </div>
+
+</div>
+
+
+
+<script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
+</script>
+
+
+
+<script>
+
+    const selectedLocationId =
+        localStorage.getItem(
+            "selectedLocationId"
+        );
+
+    let allLocations = [];
+
+    let startMarker = null;
+
+    let destinationMarker = null;
+
+    let routeLine = null;
+
+    const map =
+        L.map("map").setView(
+
+            [
+                19.2642,
+                72.8919
+            ],
+
+            18
+
+        );
+
+    L.tileLayer(
+
+        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+
+        {
+
+            attribution:
+                "&copy; OpenStreetMap contributors"
+
+        }
+
+    ).addTo(map);
+
+
+    fetch(
+        "http://localhost:8081/api/locations"
+    )
+
+    .then(response => {
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                "Failed to load locations"
+            );
+
+        }
+
+
+        return response.json();
+
+    })
+
+
+    .then(locations => {
+
+        allLocations =
+            locations.filter(location => {
+
+
+                const latitude =
+                    Number(location.latitude);
+
+
+                const longitude =
+                    Number(location.longitude);
+
+
+                return (
+
+                    Number.isFinite(latitude)
+
+                    &&
+
+                    Number.isFinite(longitude)
+
+                    &&
+
+                    latitude !== 0
+
+                    &&
+
+                    longitude !== 0
+
+                );
+
+            });
+
+        populateDropdowns(
+            allLocations
+        );
+
+        allLocations.forEach(
+            location => {
+
+
+                const marker =
+                    L.marker([
+
+                        Number(location.latitude),
+
+                        Number(location.longitude)
+
+                    ]).addTo(map);
+
+
+
+                marker.bindPopup(`
+
+                    <h3
+                        style="
+                            color:#092b52;
+                            margin-top:0;
+                        "
+                    >
+
+                        ${location.name}
+
+                    </h3>
+
+
+                    <p>
+
+                        <strong>
+                            Type:
+                        </strong>
+
+                        ${location.type || "N/A"}
+
+                    </p>
+
+
+                    <p>
+
+                        <strong>
+                            Building:
+                        </strong>
+
+                        ${location.building || "N/A"}
+
+                    </p>
+
+
+                    <p>
+
+                        <strong>
+                            Floor:
+                        </strong>
+
+                        ${location.floor || "N/A"}
+
+                    </p>
+
+
+                    <p>
+
+                        ${location.description || ""}
+
+                    </p>
+
+                `);
+
+                if (
+
+                    selectedLocationId
+
+                    &&
+
+                    String(location.id) ===
+                    String(selectedLocationId)
+
+                ) {
+
+
+                    document.getElementById(
+                        "destinationLocation"
+                    ).value =
+                        location.id;
+
+
+                    const routeBounds = L.latLngBounds([
+    [Number(start.latitude), Number(start.longitude)],
+    [Number(destination.latitude), Number(destination.longitude)]
+]);
+
+map.fitBounds(routeBounds, {
+    padding: [80, 80],
+    maxZoom: 20
+});
+
+
+                    marker.openPopup();
+
+                }
+
+            }
+
+        );
+
+    })
+
+
+    .catch(error => {
+
+
+        console.error(
+            "Location loading error:",
+            error
+        );
+
+
+        showRouteMessage(
+            "Unable to load campus locations."
+        );
+
+    });
+
+    function populateDropdowns(
+        locations
+    ) {
+
+
+        const startSelect =
+            document.getElementById(
+                "startLocation"
+            );
+
+
+        const destinationSelect =
+            document.getElementById(
+                "destinationLocation"
+            );
+
+
+
+        locations.forEach(
+            location => {
+
+
+                const startOption =
+                    document.createElement(
+                        "option"
+                    );
+
+
+                startOption.value =
+                    location.id;
+
+
+                startOption.textContent =
+                    location.name;
+
+
+                startSelect.appendChild(
+                    startOption
+                );
+
+
+
+                const destinationOption =
+                    document.createElement(
+                        "option"
+                    );
+
+
+                destinationOption.value =
+                    location.id;
+
+
+                destinationOption.textContent =
+                    location.name;
+
+
+                destinationSelect.appendChild(
+                    destinationOption
+                );
+
+            }
+
+        );
+
+    }
+
+    function findRoute() {
+
+
+        const startId =
+            document.getElementById(
+                "startLocation"
+            ).value;
+
+
+        const destinationId =
+            document.getElementById(
+                "destinationLocation"
+            ).value;
+
+        if (
+            !startId ||
+            !destinationId
+        ) {
+
+
+            showRouteMessage(
+
+                "Please select both a starting location and a destination."
+
+            );
+
+
+            return;
+
+        }
+
+        if (
+            startId === destinationId
+        ) {
+
+
+            showRouteMessage(
+
+                "Starting location and destination cannot be the same."
+
+            );
+
+
+            return;
+
+        }
+
+        const start =
+            allLocations.find(
+                location =>
+
+                    String(location.id) ===
+                    String(startId)
+
+            );
+
+
+        const destination =
+            allLocations.find(
+                location =>
+
+                    String(location.id) ===
+                    String(destinationId)
+
+            );
+
+
+
+        if (
+            !start ||
+            !destination
+        ) {
+
+
+            showRouteMessage(
+
+                "Selected locations could not be found."
+
+            );
+
+
+            return;
+
+        }
+
+        if (startMarker) {
+
+            map.removeLayer(
+                startMarker
+            );
+
+        }
+
+
+        if (destinationMarker) {
+
+            map.removeLayer(
+                destinationMarker
+            );
+
+        }
+
+
+        if (routeLine) {
+
+            map.removeLayer(
+                routeLine
+            );
+
+        }
+
+        startMarker =
+            L.marker(
+
+                [
+
+                    Number(start.latitude),
+
+                    Number(start.longitude)
+
+                ],
+
+                {
+
+                    title:
+                        "Start: " +
+                        start.name
+
+                }
+
+            ).addTo(map);
+
+
+
+        startMarker.bindPopup(`
+
+            <strong>
+                📍 Start Location
+            </strong>
+
+            <br><br>
+
+            ${start.name}
+
+        `);
+
+        destinationMarker =
+            L.marker(
+
+                [
+
+                    Number(destination.latitude),
+
+                    Number(destination.longitude)
+
+                ],
+
+                {
+
+                    title:
+                        "Destination: " +
+                        destination.name
+
+                }
+
+            ).addTo(map);
+
+
+
+        destinationMarker.bindPopup(`
+
+            <strong>
+                🎯 Destination
+            </strong>
+
+            <br><br>
+
+            ${destination.name}
+
+        `);
+
+        routeLine =
+            L.polyline(
+
+                [
+
+                    [
+
+                        Number(start.latitude),
+
+                        Number(start.longitude)
+
+                    ],
+
+                    [
+
+                        Number(destination.latitude),
+
+                        Number(destination.longitude)
+
+                    ]
+
+                ],
+
+                {
+
+                    weight: 6,
+
+                    opacity: 0.85,
+
+                    lineCap: "round",
+
+                    lineJoin: "round",
+
+                    dashArray: "10 8"
+
+                }
+
+            ).addTo(map);
+
+
+        const distance =
+            calculateDistance(
+
+                Number(start.latitude),
+
+                Number(start.longitude),
+
+                Number(destination.latitude),
+
+                Number(destination.longitude)
+
+            );
+
+        map.fitBounds(
+
+            routeLine.getBounds(),
+
+            {
+
+                padding: [
+
+                    80,
+                    80
+
+                ]
+
+            }
+
+        );
+
+        showRouteMessage(
+
+            `
+
+                <strong>
+                    Route Selected
+                </strong>
+
+                <br>
+
+                ${start.name}
+
+                →
+
+                ${destination.name}
+
+                <br>
+
+                Distance:
+                ${distance < 1000
+                    ? distance.toFixed(0) + " m"
+                    : (distance / 1000).toFixed(2) + " km"
+                }
+
+                <br><br>
+
+                <small>
+                    Campus walking route will be calculated using Dijkstra in the next step.
+                </small>
+
+            `
+
+        );
+
+    }
+
+    function calculateDistance(
+
+        lat1,
+        lon1,
+        lat2,
+        lon2
+
+    ) {
+
+
+        const earthRadius =
+            6371000;
+
+
+        const latDifference =
+            (lat2 - lat1) *
+            Math.PI / 180;
+
+
+        const lonDifference =
+            (lon2 - lon1) *
+            Math.PI / 180;
+
+
+        const a =
+
+            Math.sin(
+                latDifference / 2
+            ) ** 2
+
+            +
+
+            Math.cos(
+                lat1 * Math.PI / 180
+            )
+
+            *
+
+            Math.cos(
+                lat2 * Math.PI / 180
+            )
+
+            *
+
+            Math.sin(
+                lonDifference / 2
+            ) ** 2;
+
+
+        const c =
+
+            2 *
+
+            Math.atan2(
+
+                Math.sqrt(a),
+
+                Math.sqrt(1 - a)
+
+            );
+
+
+        return earthRadius * c;
+
+    }
+
+    function showRouteMessage(
+        message
+    ) {
+
+
+        const messageBox =
+            document.getElementById(
+                "route-message"
+            );
+
+
+        messageBox.innerHTML =
+            message;
+
+
+        messageBox.style.display =
+            "block";
+
+    }
+
+    function goBack() {
+
+
+        window.location.href =
+            "dashboard.html";
+
+    }
+
+</script>
+
+
+</body>
+
+</html>
+
