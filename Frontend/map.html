@@ -53,6 +53,16 @@
             z-index: 1;
 
         }
+        #indoorMap {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 999;
+    display: none;
+    background: #eeeeee;
+}
 
         .map-header {
 
@@ -368,6 +378,7 @@
 <body>
 
 <div id="map"></div>
+<div id="indoorMap"></div>
 
 <div class="map-header">
 
@@ -385,6 +396,7 @@
     </button>
 
 </div>
+
 
 <div class="navigation-panel">
 
@@ -504,6 +516,35 @@
             18
 
         );
+
+// Separate Leaflet map for indoor floor plan
+const indoorMap = L.map("indoorMap", {
+    crs: L.CRS.Simple,
+    minZoom: -3,
+    maxZoom: 6,
+    zoomControl: true
+});
+
+const floor4Bounds = [
+    [0, 0],
+    [1180, 3720]
+];
+
+L.imageOverlay(
+    "/floor4.png",
+    floor4Bounds
+).addTo(indoorMap);
+
+indoorMap.fitBounds(
+    floor4Bounds,
+    {
+        padding: [20, 20]
+    }
+);
+
+let indoorRouteLine = null;
+let indoorStartMarker = null;
+let indoorDestinationMarker = null;    
 
     L.tileLayer(
 
@@ -769,292 +810,504 @@ map.fitBounds(routeBounds, {
 
     }
 
-    function findRoute() {
+async function findRoute() {
+
+    const startId =
+        document.getElementById("startLocation").value;
+
+    const destinationId =
+        document.getElementById("destinationLocation").value;
 
 
-        const startId =
-            document.getElementById(
-                "startLocation"
-            ).value;
+    // Check selections
+    if (!startId || !destinationId) {
+
+        showRouteMessage(
+            "Please select both a starting location and a destination."
+        );
+
+        return;
+    }
 
 
-        const destinationId =
-            document.getElementById(
-                "destinationLocation"
-            ).value;
+    // Same location check
+    if (startId === destinationId) {
+
+        showRouteMessage(
+            "Starting location and destination cannot be the same."
+        );
+
+        return;
+    }
+
+
+    // Find selected locations
+    const start =
+        allLocations.find(
+            location =>
+                String(location.id) === String(startId)
+        );
+
+    const destination =
+        allLocations.find(
+            location =>
+                String(location.id) === String(destinationId)
+        );
+
+
+    if (!start || !destination) {
+
+        showRouteMessage(
+            "Selected locations could not be found."
+        );
+
+        return;
+    }
+
+
+    // Remove previous markers and route
+    if (startMarker) {
+        map.removeLayer(startMarker);
+        startMarker = null;
+    }
+
+    if (destinationMarker) {
+        map.removeLayer(destinationMarker);
+        destinationMarker = null;
+    }
+
+    if (routeLine) {
+        map.removeLayer(routeLine);
+        routeLine = null;
+    }
+
+
+    /*
+     * VERIFIED 4TH-FLOOR INDOOR GRAPH
+     *
+     * Database IDs:
+     *
+     * 1  = Mechanics Lab / Room 2404
+     * 2  = Language Lab / Room 2406
+     * 12 = BEEE Lab / Room 2403
+     *
+     * These are the locations for which we currently
+     * have the verified indoor route.
+     */
+    const indoorIds = ["1", "2", "5", "6", "12"];
+
+
+    const isIndoorRoute =
+        indoorIds.includes(String(startId)) &&
+        indoorIds.includes(String(destinationId));
+
+
+    /*
+     * ----------------------------------------------------
+     * INDOOR ROUTE
+     * ----------------------------------------------------
+     */
+    if (isIndoorRoute) {
+
+    try {
+
+        showRouteMessage(
+            "Calculating indoor route using Dijkstra..."
+        );
+
+
+        const response =
+            await fetch(
+                `http://localhost:8081/api/navigation/route?startId=${startId}&destinationId=${destinationId}`
+            );
+
+
+        if (!response.ok) {
+
+            const errorText =
+                await response.text();
+
+            throw new Error(errorText);
+        }
+
+
+        const route =
+            await response.json();
+
 
         if (
-            !startId ||
-            !destinationId
+            !route.coordinates ||
+            route.coordinates.length === 0
         ) {
 
-
-            showRouteMessage(
-
-                "Please select both a starting location and a destination."
-
+            throw new Error(
+                "No indoor route coordinates returned."
             );
-
-
-            return;
-
-        }
-
-        if (
-            startId === destinationId
-        ) {
-
-
-            showRouteMessage(
-
-                "Starting location and destination cannot be the same."
-
-            );
-
-
-            return;
-
-        }
-
-        const start =
-            allLocations.find(
-                location =>
-
-                    String(location.id) ===
-                    String(startId)
-
-            );
-
-
-        const destination =
-            allLocations.find(
-                location =>
-
-                    String(location.id) ===
-                    String(destinationId)
-
-            );
-
-
-
-        if (
-            !start ||
-            !destination
-        ) {
-
-
-            showRouteMessage(
-
-                "Selected locations could not be found."
-
-            );
-
-
-            return;
-
-        }
-
-        if (startMarker) {
-
-            map.removeLayer(
-                startMarker
-            );
-
         }
 
 
-        if (destinationMarker) {
+        /*
+         * -----------------------------------------
+         * SWITCH FROM GPS MAP TO FLOOR PLAN
+         * -----------------------------------------
+         */
 
-            map.removeLayer(
-                destinationMarker
+        document.getElementById("map").style.display = "none";
+
+        document.getElementById("indoorMap").style.display = "block";
+
+        setTimeout(() => {
+            indoorMap.invalidateSize();
+        }, 100);
+
+
+        /*
+         * Remove previous indoor route
+         */
+
+        if (indoorRouteLine) {
+
+            indoorMap.removeLayer(
+                indoorRouteLine
             );
 
+            indoorRouteLine = null;
         }
 
 
-        if (routeLine) {
+        if (indoorStartMarker) {
 
-            map.removeLayer(
-                routeLine
+            indoorMap.removeLayer(
+                indoorStartMarker
             );
 
+            indoorStartMarker = null;
         }
 
-        startMarker =
-            L.marker(
 
-                [
+        if (indoorDestinationMarker) {
 
-                    Number(start.latitude),
+            indoorMap.removeLayer(
+                indoorDestinationMarker
+            );
 
-                    Number(start.longitude)
+            indoorDestinationMarker = null;
+        }
 
-                ],
 
+        /*
+         * Backend gives floor-plan coordinates:
+         *
+         * x = horizontal
+         * y = vertical
+         *
+         * Leaflet CRS.Simple:
+         * [y, x]
+         */
+
+        const latLngs =
+            route.coordinates.map(
+                point => [
+                    point.y,
+                    point.x
+                ]
+            );
+
+
+        if (latLngs.length < 2) {
+
+            throw new Error(
+                "Indoor route has insufficient coordinates."
+            );
+        }
+
+
+        /*
+         * -----------------------------------------
+         * DRAW ROUTE ON FLOOR PLAN
+         * -----------------------------------------
+         */
+
+        indoorRouteLine =
+            L.polyline(
+                latLngs,
                 {
-
-                    title:
-                        "Start: " +
-                        start.name
-
+                    weight: 8,
+                    opacity: 0.9,
+                    lineCap: "round",
+                    lineJoin: "round"
                 }
-
-            ).addTo(map);
-
+            ).addTo(indoorMap);
 
 
-        startMarker.bindPopup(`
+        /*
+         * -----------------------------------------
+         * START MARKER
+         * -----------------------------------------
+         */
 
-            <strong>
-                📍 Start Location
-            </strong>
+        indoorStartMarker =
+            L.circleMarker(
+                latLngs[0],
+                {
+                    radius: 9
+                }
+            ).addTo(indoorMap);
+
+
+        indoorStartMarker.bindPopup(
+            `
+            <strong>📍 START</strong>
+            <br><br>
+            ${start.name}
+            `
+        );
+
+
+        /*
+         * -----------------------------------------
+         * DESTINATION MARKER
+         * -----------------------------------------
+         */
+
+        indoorDestinationMarker =
+            L.circleMarker(
+                latLngs[latLngs.length - 1],
+                {
+                    radius: 9
+                }
+            ).addTo(indoorMap);
+
+
+        indoorDestinationMarker.bindPopup(
+            `
+            <strong>🎯 DESTINATION</strong>
+            <br><br>
+            ${destination.name}
+            `
+        );
+
+
+        /*
+         * -----------------------------------------
+         * ZOOM TO ROUTE
+         * -----------------------------------------
+         */
+
+        const routeBounds =
+            L.latLngBounds(latLngs);
+
+
+        indoorMap.fitBounds(
+            routeBounds,
+            {
+                padding: [150, 150],
+                maxZoom: 4
+            }
+        );
+
+
+        /*
+         * -----------------------------------------
+         * SHOW RESULT
+         * -----------------------------------------
+         */
+
+        showRouteMessage(
+            `
+            <strong>Indoor Route</strong>
 
             <br><br>
 
             ${start.name}
-
-        `);
-
-        destinationMarker =
-            L.marker(
-
-                [
-
-                    Number(destination.latitude),
-
-                    Number(destination.longitude)
-
-                ],
-
-                {
-
-                    title:
-                        "Destination: " +
-                        destination.name
-
-                }
-
-            ).addTo(map);
-
-
-
-        destinationMarker.bindPopup(`
-
-            <strong>
-                🎯 Destination
-            </strong>
+            →
+            ${destination.name}
 
             <br><br>
 
-            ${destination.name}
+            Distance:
+            ${Number(route.distance).toFixed(1)} m
 
-        `);
+            <br>
 
-        routeLine =
-            L.polyline(
+            Walking time:
+            ${route.walkingTime} min
 
-                [
+            <br><br>
 
-                    [
-
-                        Number(start.latitude),
-
-                        Number(start.longitude)
-
-                    ],
-
-                    [
-
-                        Number(destination.latitude),
-
-                        Number(destination.longitude)
-
-                    ]
-
-                ],
-
-                {
-
-                    weight: 6,
-
-                    opacity: 0.85,
-
-                    lineCap: "round",
-
-                    lineJoin: "round",
-
-                    dashArray: "10 8"
-
-                }
-
-            ).addTo(map);
-
-
-        const distance =
-            calculateDistance(
-
-                Number(start.latitude),
-
-                Number(start.longitude),
-
-                Number(destination.latitude),
-
-                Number(destination.longitude)
-
-            );
-
-        map.fitBounds(
-
-            routeLine.getBounds(),
-
-            {
-
-                padding: [
-
-                    80,
-                    80
-
-                ]
-
-            }
-
+            <small>
+            Route calculated using Dijkstra.
+            </small>
+            `
         );
+
+
+        console.log(
+            "Dijkstra path:",
+            route.path
+        );
+
+        console.log(
+            "Indoor coordinates:",
+            route.coordinates
+        );
+
+        console.log(
+            "Indoor distance:",
+            route.distance,
+            "meters"
+        );
+
+        console.log(
+            "Walking time:",
+            route.walkingTime,
+            "minutes"
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "Indoor route error:",
+            error
+        );
+
 
         showRouteMessage(
+            "Unable to calculate indoor route: "
+            + error.message
+        );
+    }
 
-            `
 
-                <strong>
-                    Route Selected
-                </strong>
+    return;
+}
 
-                <br>
+    /*
+     * ----------------------------------------------------
+     * EXISTING OUTDOOR / GPS ROUTE
+     * ----------------------------------------------------
+     *
+     * Locations that are not yet connected to the
+     * indoor Dijkstra graph continue to use the
+     * existing GPS map.
+     */
 
-                ${start.name}
 
-                →
+    startMarker =
+        L.marker(
+            [
+                Number(start.latitude),
+                Number(start.longitude)
+            ],
+            {
+                title:
+                    "Start: " +
+                    start.name
+            }
+        ).addTo(map);
 
-                ${destination.name}
 
-                <br>
+    startMarker.bindPopup(
+        `
+        <strong>📍 Start Location</strong>
+        <br><br>
+        ${start.name}
+        `
+    );
 
-                Distance:
-                ${distance < 1000
-                    ? distance.toFixed(0) + " m"
-                    : (distance / 1000).toFixed(2) + " km"
-                }
 
-                <br><br>
+    destinationMarker =
+        L.marker(
+            [
+                Number(destination.latitude),
+                Number(destination.longitude)
+            ],
+            {
+                title:
+                    "Destination: " +
+                    destination.name
+            }
+        ).addTo(map);
 
-                <small>
-                    Campus walking route will be calculated using Dijkstra in the next step.
-                </small>
 
-            `
+    destinationMarker.bindPopup(
+        `
+        <strong>🎯 Destination</strong>
+        <br><br>
+        ${destination.name}
+        `
+    );
 
+
+    routeLine =
+        L.polyline(
+            [
+                [
+                    Number(start.latitude),
+                    Number(start.longitude)
+                ],
+                [
+                    Number(destination.latitude),
+                    Number(destination.longitude)
+                ]
+            ],
+            {
+                weight: 6,
+                opacity: 0.85,
+                lineCap: "round",
+                lineJoin: "round",
+                dashArray: "10 8"
+            }
+        ).addTo(map);
+
+
+    const distance =
+        calculateDistance(
+            Number(start.latitude),
+            Number(start.longitude),
+            Number(destination.latitude),
+            Number(destination.longitude)
         );
 
-    }
+
+    map.fitBounds(
+        routeLine.getBounds(),
+        {
+            padding: [80, 80]
+        }
+    );
+
+
+    showRouteMessage(
+        `
+        <strong>Route Selected</strong>
+        <br>
+
+        ${start.name}
+        →
+        ${destination.name}
+
+        <br>
+
+        Distance:
+        ${
+            distance < 1000
+                ? distance.toFixed(0) + " m"
+                : (distance / 1000).toFixed(2) + " km"
+        }
+
+        <br><br>
+
+        <small>
+        GPS route shown. Indoor Dijkstra routing is
+        currently available for the verified 4th-floor
+        locations.
+        </small>
+        `
+    );
+}
+
 
     function calculateDistance(
 

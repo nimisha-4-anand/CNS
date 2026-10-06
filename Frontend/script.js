@@ -1,7 +1,3 @@
-/* =========================================================
-   REGISTER
-   ========================================================= */
-
 async function register() {
 
     let name =
@@ -27,8 +23,6 @@ async function register() {
 
     error.innerHTML = "";
 
-
-    // Check empty fields
     if (
         name === "" ||
         studentId === "" ||
@@ -43,8 +37,6 @@ async function register() {
         return;
     }
 
-
-    // Check password
     if (password !== confirmPassword) {
 
         error.innerHTML =
@@ -53,8 +45,6 @@ async function register() {
         return;
     }
 
-
-    // Check terms
     if (!terms) {
 
         error.innerHTML =
@@ -134,11 +124,6 @@ async function register() {
 
 }
 
-
-/* =========================================================
-   LOGIN
-   ========================================================= */
-
 async function login() {
 
     let email =
@@ -152,8 +137,6 @@ async function login() {
 
     error.innerHTML = "";
 
-
-    // Check empty fields
     if (
         email === "" ||
         password === ""
@@ -246,12 +229,6 @@ async function login() {
     }
 
 }
-
-
-/* =========================================================
-   SHOW / HIDE PASSWORD
-   ========================================================= */
-
 function showPassword(id, button) {
 
     let password =
@@ -275,11 +252,6 @@ function showPassword(id, button) {
     }
 
 }
-
-
-/* =========================================================
-   PASSWORD STRENGTH
-   ========================================================= */
 
 function checkStrength() {
 
@@ -329,11 +301,6 @@ function checkStrength() {
 
 }
 
-
-/* =========================================================
-   FORGOT PASSWORD
-   ========================================================= */
-
 function forgotPassword() {
 
     alert(
@@ -341,11 +308,6 @@ function forgotPassword() {
     );
 
 }
-
-
-/* =========================================================
-   SHOW USER
-   ========================================================= */
 
 function showUser() {
 
@@ -394,11 +356,6 @@ function showUser() {
 
 }
 
-
-/* =========================================================
-   LOGOUT
-   ========================================================= */
-
 function logout() {
 
     localStorage.removeItem(
@@ -415,10 +372,6 @@ function logout() {
 }
 
 
-/* =========================================================
-   DASHBOARD CATEGORY OPEN
-   ========================================================= */
-
 function openCategory(category) {
 
     window.location.href =
@@ -426,28 +379,6 @@ function openCategory(category) {
         encodeURIComponent(category);
 
 }
-
-
-/* =========================================================
-   CATEGORY FILTER
-   =========================================================
-   
-   This matches the categories with the CURRENT
-   Location database structure.
-
-   Current Location fields:
-
-   id
-   name
-   description
-   latitude
-   longitude
-   type
-   building
-   floor
-
-   There is NO category/subCategory field anymore.
-   ========================================================= */
 
 function filterLocationsByCategory(
     locations,
@@ -461,166 +392,279 @@ function filterLocationsByCategory(
     }
 
 
-    /* ================================
-       ADMINISTRATION
-       ================================ */
+    const normalize = value => {
 
-    if (category === "Administration") {
+        return String(value || "")
+            .trim()
+            .toLowerCase();
 
-        return locations.filter(location =>
+    };
 
-            location.type === "Administration"
 
-        );
+    const selectedCategory =
+        normalize(category);
 
-    }
 
+    return locations.filter(location => {
 
-    /* ================================
-       FACULTY
-       ================================ */
 
-    if (category === "Faculty") {
+        const name =
+            normalize(location.name);
 
-        return locations.filter(location =>
 
-            location.name === "Faculty Room" ||
+        const type =
+            normalize(location.type);
 
-            location.name === "HOD Cabin"
 
-        );
+        const description =
+            normalize(location.description);
 
-    }
 
+        /* =================================================
+           ADMINISTRATION
+           ================================================= */
 
-    /* ================================
-       CLASSROOMS
-       ================================ */
+        if (
+            selectedCategory ===
+            "administration"
+        ) {
 
-    if (category === "Classrooms") {
+            return (
 
-        return locations.filter(location =>
+                type.includes("administration") ||
 
-            location.type === "Classroom"
+                type.includes("admin") ||
 
-        );
+                name.includes("admission office") ||
 
-    }
+                name.includes("principal office") ||
 
+                name.includes("examination cell") ||
 
-    /* ================================
-       LABORATORIES
-       ================================ */
+                name.includes("fees office") ||
 
-    if (category === "Laboratories") {
+                name.includes("xerox office") ||
 
-        return locations.filter(location =>
+                name.includes("waiting room")
 
-            location.type === "Laboratory" ||
+            );
 
-            location.type === "Laboratories"
+        }
 
-        );
 
-    }
+        /* =================================================
+           FACULTY
+           ================================================= */
 
+        if (
+            selectedCategory ===
+            "faculty"
+        ) {
 
-    /* ================================
-       LIBRARY
-       ================================ */
+            return (
 
-    if (category === "Library") {
+                type.includes("faculty") ||
 
-        return locations.filter(location =>
+                type.includes("staff") ||
 
-            location.name === "Library"
+                type.includes("hod") ||
 
-        );
+                name.includes("faculty") ||
 
-    }
+                name.includes("staff room") ||
 
+                name.includes("hod cabin") ||
 
-    /* ================================
-       HALLS
-       ================================ */
+                name.includes("hod") ||
 
-    if (category === "Halls") {
+                name.includes("mam's cabin") ||
 
-        return locations.filter(location =>
+                name.includes("sir's cabin") ||
 
-            location.name &&
-            location.name
-                .toLowerCase()
-                .includes("hall")
+                description.includes("faculty")
 
-        );
+            );
 
-    }
+        }
 
 
-    /* ================================
-       FACILITIES
-       ================================ */
+        /* =================================================
+           CLASSROOMS
+           ================================================= */
 
-    if (category === "Facilities") {
+        if (
+            selectedCategory ===
+            "classrooms"
+        ) {
 
-        return locations.filter(location =>
+            return (
 
-            location.type === "Facility"
+                type === "classroom" ||
 
-        );
+                type.includes("classroom") ||
 
-    }
+                name.startsWith("room ") ||
 
+                name.includes("classroom")
 
-    /* ================================
-       ENTRANCES & GATES
-       ================================ */
+            );
 
-    if (category === "Entrances & Gates") {
+        }
 
-        return locations.filter(location =>
 
-            location.type === "Entrance" ||
+        /* =================================================
+           LABORATORIES
+           ================================================= */
 
-            location.type === "Gate"
+        if (
+            selectedCategory ===
+            "laboratories"
+        ) {
 
-        );
+            return (
 
-    }
+                type === "laboratory" ||
 
+                type === "laboratories" ||
 
-    /* ================================
-       SPORTS & RECREATION
-       ================================ */
+                type.includes("lab") ||
 
-    if (
-        category ===
-        "Sports & Recreation"
-    ) {
+                name.includes("lab") ||
 
-        return locations.filter(location =>
+                name.includes("laboratory")
 
-            location.type === "Sports" ||
+            );
 
-            location.type === "Recreation"
+        }
 
-        );
 
-    }
+        /* =================================================
+           LIBRARY
+           ================================================= */
 
+        if (
+            selectedCategory ===
+            "library"
+        ) {
 
-    // If no category matches,
-    // show all locations.
+            return (
 
-    return locations;
+                name === "library" ||
+
+                name.includes("library") ||
+
+                type.includes("library")
+
+            );
+
+        }
+
+
+        /* =================================================
+           HALLS
+           ================================================= */
+
+        if (
+            selectedCategory ===
+            "halls"
+        ) {
+
+            return (
+
+                type.includes("hall") ||
+
+                name.includes("hall")
+
+            );
+
+        }
+
+
+        /* =================================================
+           FACILITIES
+           ================================================= */
+
+        if (
+            selectedCategory ===
+            "facilities"
+        ) {
+
+            return (
+
+                type === "facility" ||
+
+                type === "facilities" ||
+
+                type.includes("facility") ||
+
+                name.includes("canteen") ||
+
+                name.includes("washroom") ||
+
+                name.includes("xerox")
+
+            );
+
+        }
+
+
+        /* =================================================
+           ENTRANCES & GATES
+           ================================================= */
+
+        if (
+            selectedCategory ===
+            "entrances & gates"
+        ) {
+
+            return (
+
+                type === "entrance" ||
+
+                type === "gate" ||
+
+                type.includes("entrance") ||
+
+                type.includes("gate") ||
+
+                name.includes("entrance") ||
+
+                name.includes("gate")
+
+            );
+
+        }
+
+        if (
+            selectedCategory ===
+            "sports & recreation"
+        ) {
+
+            return (
+
+                type === "sports" ||
+
+                type === "sport" ||
+
+                type === "recreation" ||
+
+                type.includes("sport") ||
+
+                type.includes("recreation") ||
+
+                name.includes("sports") ||
+
+                name.includes("recreation")
+
+            );
+
+        }
+
+        return false;
+
+    });
 
 }
-
-
-/* =========================================================
-   DASHBOARD SEARCH
-   ========================================================= */
 
 async function searchLocation() {
 

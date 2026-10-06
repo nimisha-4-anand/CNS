@@ -258,7 +258,7 @@
     const locationImages = {
 
         "Basic Electrical & Electronics Lab":
-            "images/bee.jfif",
+            "images/Bee.jfif",
 
         "Drawing Hall":
             "images/drawing hall.jfif",
@@ -270,12 +270,85 @@
             "images/chemistry.jfif",
 
         "Library":
-            "images/library.jfif"
+            "images/library.jfif",
+
+        "Computer Centre":
+            "images/Computer lab.jpeg",
+             
+        "1st Building Entrance gate":
+            "images/1st Building Entrance.jpeg",
+            
+        "2nd Building Entrance":
+            "images/2nd Building Entrance.jpeg",
+            
+        "Basic Electrical & Electronics Lab":
+            "images/Bee.jfif",
+          
+        "Canteen":
+            "images/canteen.jpeg",
+        "Exam Control Office":
+            "images/Examination.jpeg",
+
+        "Principal Office":
+            "images/Principal Office.jpeg",
+
+        "Room 1305":
+            "images/Room 1305.jpeg",
+
+        "Sports Equipment Room":
+            "images/Sports Equipment room.jpeg",
+
+        "Faculty Room":
+            "images/Faculty Room.jpeg",
+
+        "Gazebo":
+            "images/Gazebo.jpeg",
+
+        "Basketball Court":
+            "images/Basketball.jpeg",
+        
+        "Football Ground":
+            "images/Football.jpeg",
+        
+        "Sports Equipment Room":
+            "images/Sport Equipment room.jpeg",
+
+        "Main Gate":
+            "images/Main Gate.jfif"
+    };
+
+    const categoryDescriptions = {
+
+        "Administration":
+            "Offices and administrative services on campus.",
+
+        "Faculty":
+            "Faculty rooms, staff rooms and HOD cabins.",
+
+        "Classrooms":
+            "Classrooms and academic teaching spaces.",
+
+        "Laboratories":
+            "Explore laboratories and practical learning spaces.",
+
+        "Library":
+            "Find the campus library.",
+
+        "Halls":
+            "Drawing halls and other campus halls.",
+
+        "Facilities":
+            "Important campus facilities and services.",
+
+        "Entrances & Gates":
+            "Campus entrances and gates.",
+
+        "Sports & Recreation":
+            "Sports and recreational facilities."
 
     };
 
     async function loadLocations() {
-
 
         const container =
             document.getElementById(
@@ -293,15 +366,41 @@
             document.getElementById(
                 "categoryDescription"
             );
-
-        title.innerHTML =
-            "Campus Locations";
-
-
-        description.innerHTML =
-            "Explore all locations on your campus.";
+        const urlParams =
+            new URLSearchParams(
+                window.location.search
+            );
 
 
+        const category =
+            urlParams.get("category");
+
+
+        console.log(
+            "Selected category:",
+            category
+        );
+
+        if (category) {
+
+            title.innerHTML =
+                category;
+
+            description.innerHTML =
+                categoryDescriptions[category] ||
+                "Explore locations in this category.";
+
+        }
+
+        else {
+
+            title.innerHTML =
+                "Campus Locations";
+
+            description.innerHTML =
+                "Explore all locations on your campus.";
+
+        }
 
         try {
 
@@ -309,6 +408,7 @@
                 await fetch(
                     "http://localhost:8081/api/locations"
                 );
+
 
             if (!response.ok) {
 
@@ -332,8 +432,10 @@
 
             }
 
+
             const locations =
                 await response.json();
+
 
             if (
                 !locations ||
@@ -361,9 +463,54 @@
 
             }
 
+            const filteredLocations =
+                filterLocationsByCategory(
+                    locations,
+                    category
+                );
+
+
+            console.log(
+                "All locations:",
+                locations
+            );
+
+
+            console.log(
+                "Filtered locations:",
+                filteredLocations
+            );
+
+            if (
+                filteredLocations.length === 0
+            ) {
+
+                container.innerHTML = `
+
+                    <div class="location-result">
+
+                        <h3>
+                            No locations found
+                        </h3>
+
+                        <p>
+                            No locations are available
+                            in the "${category}" category.
+                        </p>
+
+                    </div>
+
+                `;
+
+                return;
+
+            }
+
             container.innerHTML = "";
 
-            locations.forEach(location => {
+
+            filteredLocations.forEach(
+                location => {
 
 
                 const card =
@@ -377,6 +524,7 @@
                 card.style.cursor =
                     "pointer";
 
+
                 card.onclick =
                     function () {
 
@@ -388,6 +536,7 @@
 
                 const image =
                     locationImages[location.name];
+
 
                 let imageHTML = "";
 
@@ -413,7 +562,9 @@
 
                     `;
 
-                } else {
+                }
+
+                else {
 
                     imageHTML = `
 
@@ -441,7 +592,8 @@
                     <div class="location-card-top">
 
                         <h3>
-                            ${location.name || "Unnamed Location"}
+                            ${location.name ||
+                            "Unnamed Location"}
                         </h3>
 
 
@@ -449,7 +601,10 @@
                             type="button"
                             class="favorite-btn"
                             data-location-id="${location.id}"
-                            onclick="toggleFavorite(event, ${location.id})">
+                            onclick="toggleFavorite(
+                                event,
+                                ${location.id}
+                            )">
 
                             ☆
 
@@ -507,9 +662,11 @@
 
                 `;
 
+
                 container.appendChild(card);
 
             });
+
 
             updateFavoriteButtons();
 
@@ -517,7 +674,6 @@
 
 
         catch (error) {
-
 
             console.error(
                 "Location loading error:",
@@ -545,11 +701,10 @@
         }
 
     }
+
     loadLocations();
 
-
 </script>
-
 
 </body>
 
